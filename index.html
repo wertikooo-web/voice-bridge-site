@@ -1,0 +1,848 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>VoiceBridge — Голос без барьеров</title>
+  <meta name="description" content="VoiceBridge — мгновенный голосовой мост между близкими людьми. Без звонков. Без экранов. Просто голос." />
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,400;0,500;0,600;0,700;0,800;1,700&family=Lora:ital,wght@0,600;1,600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #1a1d2e;
+      --bg2: #1f2237;
+      --bg3: #171a2a;
+      --card: #242840;
+      --card2: #2a2f4a;
+      --blue: #7ab8f5;
+      --blue-glow: rgba(122,184,245,0.2);
+      --purple: #b891f7;
+      --purple-glow: rgba(184,145,247,0.2);
+      --orange: #f4956a;
+      --orange-glow: rgba(244,149,106,0.18);
+      --teal: #5edcd0;
+      --text: #dde3f8;
+      --text-mid: #8d97be;
+      --text-dim: #555f82;
+      --border: rgba(255,255,255,0.08);
+      --border-bright: rgba(255,255,255,0.15);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Nunito', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      background: rgba(13,15,26,0.85);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 2rem;
+      height: 64px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .nav-logo {
+      font-size: 1.3rem; font-weight: 800; text-decoration: none;
+      color: var(--text); letter-spacing: -0.02em;
+    }
+    .nav-logo span {
+      background: linear-gradient(135deg, var(--blue), var(--purple));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .lang-switcher {
+      display: flex; gap: 2px;
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 10px; padding: 3px;
+    }
+    .lang-btn {
+      border: none; background: transparent;
+      padding: 5px 14px; border-radius: 7px;
+      font-size: 0.82rem; font-weight: 600; cursor: pointer;
+      color: var(--text-mid); transition: all 0.2s;
+    }
+    .lang-btn.active { background: var(--blue); color: white; }
+
+    /* ── HERO ── */
+    .hero {
+      min-height: 100vh;
+      padding: 130px 2rem 80px;
+      display: flex; align-items: center;
+      position: relative; overflow: hidden;
+      background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(74,158,255,0.12) 0%, transparent 60%),
+                  radial-gradient(ellipse 60% 50% at 80% 50%, rgba(168,85,247,0.1) 0%, transparent 55%),
+                  var(--bg3);
+    }
+    .hero-grid { position: absolute; inset: 0; opacity: 0.03;
+      background-image: linear-gradient(var(--text) 1px, transparent 1px),
+                        linear-gradient(90deg, var(--text) 1px, transparent 1px);
+      background-size: 60px 60px;
+    }
+    .hero-inner {
+      max-width: 1100px; margin: 0 auto;
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 4rem; align-items: center; position: relative; z-index: 1;
+    }
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: rgba(74,158,255,0.12); border: 1px solid rgba(74,158,255,0.3);
+      color: var(--blue); padding: 7px 16px; border-radius: 50px;
+      font-size: 0.8rem; font-weight: 600; letter-spacing: 0.05em;
+      text-transform: uppercase; margin-bottom: 1.5rem;
+    }
+    .hero-badge::before { content: '●'; font-size: 0.5rem; animation: blink 2s infinite; }
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+    .hero h1 {
+      font-family: 'Lora', serif;
+      font-size: 3.6rem; font-weight: 700; line-height: 1.15;
+      margin-bottom: 1.5rem; letter-spacing: -0.02em;
+    }
+    .hero h1 em {
+      font-style: italic;
+      background: linear-gradient(135deg, var(--blue) 0%, var(--purple) 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .hero-sub {
+      font-size: 1.15rem; color: var(--text-mid);
+      margin-bottom: 2.5rem; line-height: 1.75; max-width: 480px;
+    }
+    .hero-cta { display: flex; gap: 1rem; flex-wrap: wrap; }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--blue), var(--purple));
+      color: white; padding: 15px 30px; border-radius: 12px;
+      font-size: 1rem; font-weight: 700; text-decoration: none;
+      border: none; cursor: pointer; transition: all 0.25s;
+      display: inline-flex; align-items: center; gap: 8px;
+      box-shadow: 0 4px 30px var(--blue-glow);
+    }
+    .btn-primary:hover { transform: translateY(-3px); box-shadow: 0 8px 40px rgba(74,158,255,0.4); }
+
+    .btn-secondary {
+      background: transparent; color: var(--text);
+      padding: 15px 30px; border-radius: 12px;
+      font-size: 1rem; font-weight: 600; text-decoration: none;
+      border: 1px solid var(--border-bright); cursor: pointer; transition: all 0.25s;
+    }
+    .btn-secondary:hover { border-color: var(--blue); color: var(--blue); }
+
+    /* Hero orb */
+    .hero-visual { display: flex; justify-content: center; align-items: center; position: relative; height: 420px; }
+    .orb-wrap { position: relative; display: flex; justify-content: center; align-items: center; }
+    .orb {
+      width: 240px; height: 240px; border-radius: 50%;
+      background: radial-gradient(circle at 35% 30%, #7dd3fc, #6d28d9 50%, #1e0a4a);
+      box-shadow: 0 0 80px rgba(109,40,217,0.5), 0 0 160px rgba(74,158,255,0.2);
+      animation: orbPulse 4s ease-in-out infinite; position: relative; z-index: 2;
+    }
+    .orb::after {
+      content: ''; position: absolute; bottom: -18px; left: 50%;
+      transform: translateX(-50%);
+      width: 160px; height: 32px;
+      background: rgba(109,40,217,0.3);
+      filter: blur(16px); border-radius: 50%;
+    }
+    @keyframes orbPulse {
+      0%,100% { box-shadow: 0 0 80px rgba(109,40,217,0.5), 0 0 160px rgba(74,158,255,0.2); }
+      50% { box-shadow: 0 0 120px rgba(109,40,217,0.7), 0 0 200px rgba(74,158,255,0.35); }
+    }
+    .ring {
+      position: absolute; border-radius: 50%;
+      border: 1px solid rgba(168,85,247,0.2);
+      animation: ringExpand 4s ease-out infinite;
+    }
+    .ring:nth-child(1) { width: 300px; height: 300px; animation-delay: 0s; }
+    .ring:nth-child(2) { width: 380px; height: 380px; animation-delay: 1.3s; }
+    .ring:nth-child(3) { width: 460px; height: 460px; animation-delay: 2.6s; }
+    @keyframes ringExpand {
+      0% { opacity: 0.5; transform: scale(0.97); }
+      100% { opacity: 0; transform: scale(1.03); }
+    }
+    .pill {
+      position: absolute; background: var(--card2);
+      border: 1px solid var(--border-bright); border-radius: 50px;
+      padding: 8px 16px; font-size: 0.8rem; font-weight: 600;
+      display: flex; align-items: center; gap: 8px; white-space: nowrap;
+      backdrop-filter: blur(10px); z-index: 3;
+    }
+    .pill-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+    .pill.p1 { top: 40px; right: 10px; }
+    .pill.p2 { bottom: 60px; left: 0; }
+    .pill.p3 { top: 50%; right: -10px; transform: translateY(-50%); }
+
+    /* Hero image */
+    .hero-img {
+      width: 100%; border-radius: 20px;
+      box-shadow: 0 24px 80px rgba(0,0,0,0.5);
+      border: 1px solid var(--border-bright);
+    }
+
+    /* ── STATS ── */
+    .stats {
+      background: var(--bg2);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      padding: 3rem 2rem;
+    }
+    .stats-inner {
+      max-width: 900px; margin: 0 auto;
+      display: grid; grid-template-columns: repeat(3,1fr);
+      gap: 2rem; text-align: center;
+    }
+    .stat-num {
+      font-size: 3rem; font-weight: 800; letter-spacing: -0.03em;
+      background: linear-gradient(135deg, var(--blue), var(--purple));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .stat-label { font-size: 0.9rem; color: var(--text-mid); margin-top: 6px; }
+
+    /* ── SECTIONS COMMON ── */
+    section { padding: 90px 2rem; }
+    .sec { max-width: 1100px; margin: 0 auto; }
+    .sec-label {
+      font-size: 0.75rem; font-weight: 700; letter-spacing: 0.12em;
+      text-transform: uppercase; color: var(--blue); margin-bottom: 0.75rem;
+    }
+    .sec-title {
+      font-family: 'Lora', serif;
+      font-size: 2.5rem; font-weight: 700; line-height: 1.2;
+      margin-bottom: 1rem; letter-spacing: -0.02em;
+    }
+    .sec-sub { font-size: 1.05rem; color: var(--text-mid); max-width: 560px; line-height: 1.75; }
+    .center { text-align: center; }
+    .center .sec-sub { margin: 0 auto; }
+
+    /* ── PROBLEM ── */
+    .problem { background: var(--bg); }
+    .problem-grid {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 4rem; align-items: center; margin-top: 3rem;
+    }
+    .problem-quote {
+      font-family: 'Lora', serif;
+      font-size: 1.75rem; line-height: 1.5;
+      border-left: 3px solid var(--purple);
+      padding-left: 1.5rem; color: var(--text);
+      margin-bottom: 1.5rem;
+    }
+    .problem-lead { color: var(--text-mid); font-size: 0.95rem; line-height: 1.75; }
+    .problem-points { display: flex; flex-direction: column; gap: 1rem; }
+    .pp {
+      display: flex; align-items: flex-start; gap: 1rem;
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 14px; padding: 1.25rem;
+      transition: border-color 0.2s;
+    }
+    .pp:hover { border-color: var(--border-bright); }
+    .pp-icon { font-size: 1.5rem; flex-shrink: 0; }
+    .pp strong { display: block; font-weight: 600; margin-bottom: 4px; }
+    .pp p { font-size: 0.88rem; color: var(--text-mid); }
+
+    /* ── HOW ── */
+    .how { background: var(--bg2); }
+    .steps {
+      display: grid; grid-template-columns: repeat(3,1fr);
+      gap: 1.5rem; margin-top: 3rem;
+    }
+    .step {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 16px; padding: 2rem;
+      transition: all 0.25s; position: relative; overflow: hidden;
+    }
+    .step::before {
+      content: ''; position: absolute;
+      top: 0; left: 0; right: 0; height: 3px;
+      background: linear-gradient(90deg, var(--blue), var(--purple));
+      transform: scaleX(0); transform-origin: left;
+      transition: transform 0.3s;
+    }
+    .step:hover::before { transform: scaleX(1); }
+    .step:hover { border-color: var(--border-bright); transform: translateY(-4px); box-shadow: 0 12px 40px rgba(0,0,0,0.4); }
+    .step-num {
+      font-size: 3.5rem; font-weight: 800;
+      background: linear-gradient(135deg, var(--blue), var(--purple));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      line-height: 1; margin-bottom: 1rem; opacity: 0.6;
+    }
+    .step h3 { font-size: 1.1rem; font-weight: 700; margin-bottom: 0.5rem; }
+    .step p { font-size: 0.9rem; color: var(--text-mid); }
+
+    /* ── BENEFITS ── */
+    .benefits { background: var(--bg); }
+    .ben-grid {
+      display: grid; grid-template-columns: repeat(3,1fr);
+      gap: 1.5rem; margin-top: 3rem;
+    }
+    .ben {
+      border-radius: 18px; padding: 2rem;
+      border: 1px solid var(--border); transition: all 0.25s;
+      position: relative; overflow: hidden;
+    }
+    .ben::after {
+      content: ''; position: absolute; top: -40px; right: -40px;
+      width: 120px; height: 120px; border-radius: 50%;
+      opacity: 0.06;
+    }
+    .ben.b1 { background: linear-gradient(145deg, #0d1a2e, #0d1428); }
+    .ben.b1::after { background: var(--blue); }
+    .ben.b2 { background: linear-gradient(145deg, #1a0d2e, #150d28); }
+    .ben.b2::after { background: var(--purple); }
+    .ben.b3 { background: linear-gradient(145deg, #1a120d, #160e0a); }
+    .ben.b3::after { background: var(--orange); }
+    .ben:hover { border-color: var(--border-bright); transform: translateY(-4px); box-shadow: 0 16px 48px rgba(0,0,0,0.5); }
+    .ben-icon { font-size: 2.2rem; margin-bottom: 1rem; }
+    .ben-for {
+      font-size: 0.72rem; font-weight: 700; letter-spacing: 0.1em;
+      text-transform: uppercase; color: var(--text-dim); margin-bottom: 0.5rem;
+    }
+    .ben h3 { font-size: 1.15rem; font-weight: 700; margin-bottom: 1rem; }
+    .ben ul { list-style: none; display: flex; flex-direction: column; gap: 0.6rem; }
+    .ben li {
+      font-size: 0.9rem; color: var(--text-mid);
+      padding-left: 1.3rem; position: relative;
+    }
+    .ben li::before { content: '✓'; position: absolute; left: 0; font-weight: 700; }
+    .ben.b1 li::before { color: var(--blue); }
+    .ben.b2 li::before { color: var(--purple); }
+    .ben.b3 li::before { color: var(--orange); }
+
+    /* ── FEATURES ── */
+    .features { background: var(--bg2); }
+    .feat-grid {
+      display: grid; grid-template-columns: repeat(2,1fr);
+      gap: 1rem; margin-top: 3rem;
+    }
+    .feat {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 14px; padding: 1.5rem;
+      display: flex; gap: 1.25rem; align-items: flex-start;
+      transition: all 0.2s;
+    }
+    .feat:hover { border-color: var(--blue); box-shadow: 0 0 0 1px var(--blue), 0 8px 24px rgba(0,0,0,0.3); }
+    .feat-ico { font-size: 1.8rem; flex-shrink: 0; }
+    .feat h4 { font-size: 0.95rem; font-weight: 700; margin-bottom: 4px; }
+    .feat p { font-size: 0.85rem; color: var(--text-mid); }
+
+    /* ── SCENARIO ── */
+    .scenario { background: var(--bg3); }
+    .scenario-box {
+      max-width: 760px; margin: 3rem auto 0;
+      background: var(--card); border: 1px solid var(--border-bright);
+      border-radius: 20px; padding: 3rem;
+      text-align: center; position: relative; overflow: hidden;
+    }
+    .scenario-box::before {
+      content: ''; position: absolute; inset: 0;
+      background: radial-gradient(ellipse at 50% 0%, rgba(168,85,247,0.08), transparent 60%);
+    }
+    .scenario-box blockquote {
+      font-family: 'Lora', serif;
+      font-size: 1.3rem; font-style: italic;
+      color: var(--text-mid); line-height: 1.7; margin-bottom: 1.5rem;
+      position: relative; z-index: 1;
+    }
+    .scenario-box .climax {
+      font-size: 1.6rem; font-weight: 800;
+      background: linear-gradient(135deg, var(--blue), var(--purple));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      position: relative; z-index: 1;
+    }
+    .scenario-box p.tail {
+      margin-top: 1.5rem; font-size: 0.95rem; color: var(--text-mid);
+      position: relative; z-index: 1;
+    }
+
+    /* ── LEVELS ── */
+    .levels { background: var(--bg2); }
+    .lev-grid {
+      display: grid; grid-template-columns: repeat(3,1fr);
+      gap: 1.5rem; margin-top: 3rem;
+    }
+    .lev {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 18px; padding: 2rem; position: relative; transition: all 0.25s;
+    }
+    .lev.featured {
+      border-color: var(--purple);
+      box-shadow: 0 0 0 1px var(--purple), 0 8px 40px var(--purple-glow);
+    }
+    .lev:hover { transform: translateY(-4px); }
+    .lev-badge {
+      font-size: 0.7rem; font-weight: 700; letter-spacing: 0.1em;
+      text-transform: uppercase; padding: 4px 12px; border-radius: 20px;
+      display: inline-block; margin-bottom: 1rem;
+    }
+    .l1 { background: rgba(74,158,255,0.15); color: var(--blue); }
+    .l2 { background: rgba(168,85,247,0.15); color: var(--purple); }
+    .l3 { background: rgba(45,212,191,0.15); color: var(--teal); }
+    .lev h3 { font-size: 1.2rem; font-weight: 700; margin-bottom: 0.5rem; }
+    .lev > p { font-size: 0.88rem; color: var(--text-mid); margin-bottom: 1.25rem; }
+    .lev ul { list-style: none; display: flex; flex-direction: column; gap: 0.6rem; }
+    .lev li { font-size: 0.88rem; color: var(--text-mid); padding-left: 1.2rem; position: relative; }
+    .lev li::before { content: '→'; position: absolute; left: 0; }
+    .lev.featured li::before { color: var(--purple); }
+
+    /* ── FORM ── */
+    .form-sec {
+      background: radial-gradient(ellipse 100% 80% at 50% 0%, rgba(74,158,255,0.08), transparent 55%),
+                  var(--bg3);
+      padding: 90px 2rem;
+    }
+    .form-wrap { max-width: 640px; margin: 0 auto; text-align: center; }
+    .form-wrap .sec-label { color: var(--purple); }
+    .form-wrap .sec-sub { color: var(--text-mid); margin: 0 auto 2.5rem; }
+
+    .pform {
+      background: var(--card2); border: 1px solid var(--border-bright);
+      border-radius: 20px; padding: 2.5rem;
+      display: flex; flex-direction: column; gap: 1rem; text-align: left;
+    }
+    .frow { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    .ff { display: flex; flex-direction: column; gap: 6px; }
+    .ff label { font-size: 0.8rem; font-weight: 600; color: var(--text-mid); }
+    .ff input, .ff select, .ff textarea {
+      background: rgba(255,255,255,0.05); border: 1px solid var(--border-bright);
+      border-radius: 10px; padding: 12px 14px; color: var(--text);
+      font-size: 0.95rem; font-family: 'Nunito', sans-serif;
+      outline: none; transition: all 0.2s; width: 100%;
+    }
+    .ff input::placeholder, .ff textarea::placeholder { color: var(--text-dim); }
+    .ff input:focus, .ff select:focus, .ff textarea:focus {
+      border-color: var(--blue); background: rgba(74,158,255,0.06);
+      box-shadow: 0 0 0 3px rgba(74,158,255,0.12);
+    }
+    .ff select option { background: #1c2038; }
+    .ff textarea { resize: vertical; min-height: 80px; }
+    .fsub {
+      background: linear-gradient(135deg, var(--blue), var(--purple));
+      color: white; border: none; padding: 16px;
+      border-radius: 12px; font-size: 1rem; font-weight: 700;
+      cursor: pointer; transition: all 0.25s; margin-top: 0.5rem;
+      box-shadow: 0 4px 30px var(--blue-glow);
+    }
+    .fsub:hover { transform: translateY(-2px); box-shadow: 0 8px 40px rgba(168,85,247,0.4); }
+    .fnote { font-size: 0.78rem; color: var(--text-dim); text-align: center; }
+    .success {
+      display: none;
+      background: rgba(45,212,191,0.1); border: 1px solid rgba(45,212,191,0.3);
+      border-radius: 14px; padding: 2rem; color: var(--teal);
+      font-size: 1rem; text-align: center; margin-top: 1rem;
+    }
+
+    /* ── FOOTER ── */
+    footer {
+      background: var(--bg3); border-top: 1px solid var(--border);
+      padding: 2rem; text-align: center; color: var(--text-dim); font-size: 0.85rem;
+    }
+    footer a { color: var(--text-dim); text-decoration: none; }
+    footer a:hover { color: var(--blue); }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 768px) {
+      .hero-inner { grid-template-columns: 1fr; text-align: center; }
+      .hero h1 { font-size: 2.4rem; }
+      .hero-visual { display: none; }
+      .hero-cta { justify-content: center; }
+      .hero-sub { margin: 0 auto 2rem; }
+      .stats-inner, .steps, .ben-grid, .feat-grid, .lev-grid { grid-template-columns: 1fr; }
+      .problem-grid { grid-template-columns: 1fr; }
+      .frow { grid-template-columns: 1fr; }
+      .sec-title { font-size: 1.9rem; }
+      .pform { padding: 1.5rem; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="#" class="nav-logo">Voice<span>Bridge</span></a>
+  <div class="lang-switcher">
+    <button class="lang-btn active" onclick="setLang('ru')">RU</button>
+    <button class="lang-btn" onclick="setLang('en')">EN</button>
+    <button class="lang-btn" onclick="setLang('ro')">RO</button>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-grid"></div>
+  <div class="hero-inner">
+    <div>
+      <div class="hero-badge" data-ru="Голосовой мост для близких" data-en="Voice bridge for loved ones" data-ro="Pod vocal pentru cei dragi">Голосовой мост для близких</div>
+      <h1 data-ru="Голос — самый короткий путь <em>к человеку</em>" data-en="Voice is the shortest path <em>to a person</em>" data-ro="Vocea — cel mai scurt drum <em>spre om</em>">Голос — самый короткий путь <em>к человеку</em></h1>
+      <p class="hero-sub" data-ru="VoiceBridge соединяет близких мгновенно — без звонков, без экранов, без сложности. Просто коснитесь — и голос уже рядом." data-en="VoiceBridge connects loved ones instantly — no calls, no screens, no complexity. Just touch — and the voice is already there." data-ro="VoiceBridge conectează persoanele dragi instantaneu — fără apeluri, fără ecrane, fără complicații. Atingeți — și vocea este deja acolo.">VoiceBridge соединяет близких мгновенно — без звонков, без экранов, без сложности. Просто коснитесь — и голос уже рядом.</p>
+      <div class="hero-cta">
+        <a href="#preorder" class="btn-primary" data-ru="🎯 Оставить заявку" data-en="🎯 Join Waitlist" data-ro="🎯 Lasă o cerere">🎯 Оставить заявку</a>
+        <a href="#how" class="btn-secondary" data-ru="Как это работает" data-en="How it works" data-ro="Cum funcționează">Как это работает</a>
+      </div>
+    </div>
+    <div class="hero-visual">
+      <img src="img/p1.jpg" class="hero-img" alt="VoiceBridge — голосовая связь с пожилыми" />
+    </div>
+  </div>
+</section>
+
+<!-- STATS -->
+<div class="stats">
+  <div class="stats-inner">
+    <div>
+      <div class="stat-num">65M+</div>
+      <div class="stat-label" data-ru="пожилых в Европе — одиноки" data-en="elderly in Europe are lonely" data-ro="vârstnici în Europa se simt singuri">пожилых в Европе — одиноки</div>
+    </div>
+    <div>
+      <div class="stat-num">&lt;1 сек</div>
+      <div class="stat-label" data-ru="задержка передачи голоса" data-en="voice transmission latency" data-ro="latența transmisiei vocale">задержка передачи голоса</div>
+    </div>
+    <div>
+      <div class="stat-num">0</div>
+      <div class="stat-label" data-ru="кнопок нужно пожилому пользователю" data-en="buttons needed for elderly user" data-ro="butoane necesare vârstnicului">кнопок нужно пожилому пользователю</div>
+    </div>
+  </div>
+</div>
+
+<!-- PROBLEM -->
+<section class="problem">
+  <div class="sec">
+    <div class="problem-grid">
+      <div>
+        <div class="sec-label" data-ru="Проблема" data-en="The Problem" data-ro="Problema">Проблема</div>
+        <div class="problem-quote" data-ru="«Все онлайн — и одновременно всё дальше друг от друга»" data-en="«Everyone online — and further apart than ever»" data-ro="«Toți online — și mai departe unii de alții ca niciodată»">«Все онлайн — и одновременно всё дальше друг от друга»</div>
+        <p class="problem-lead" data-ru="Пожилые родители чувствуют одиночество. Дети редко звонят — некогда. Голос живого общения заменился текстом и уведомлениями." data-en="Elderly parents feel lonely. Children rarely call — no time. Live voice communication replaced by text and notifications." data-ro="Părinții vârstnici se simt singuri. Copiii sună rar — nu au timp. Comunicarea vocală înlocuită de text și notificări.">Пожилые родители чувствуют одиночество. Дети редко звонят — некогда. Голос живого общения заменился текстом и уведомлениями.</p>
+      </div>
+      <div class="problem-points">
+        <div class="pp">
+          <div class="pp-icon">😔</div>
+          <div>
+            <strong data-ru="Одиночество растёт" data-en="Loneliness is growing" data-ro="Singurătatea crește">Одиночество растёт</strong>
+            <p data-ru="Каждый третий пожилой человек чувствует себя изолированным — даже имея семью" data-en="Every third elderly person feels isolated — even with family around" data-ro="Fiecare al treilea vârstnic se simte izolat — chiar și cu familie">Каждый третий пожилой человек чувствует себя изолированным — даже имея семью</p>
+          </div>
+        </div>
+        <div class="pp">
+          <div class="pp-icon">📱</div>
+          <div>
+            <strong data-ru="Технологии создают барьер" data-en="Technology creates a barrier" data-ro="Tehnologia creează bariere">Технологии создают барьер</strong>
+            <p data-ru="Смартфоны, мессенджеры, звонки — слишком сложно для пожилых" data-en="Smartphones, messengers, calls — too complicated for the elderly" data-ro="Smartphone-uri, mesagerie, apeluri — prea complicat pentru vârstnici">Смартфоны, мессенджеры, звонки — слишком сложно для пожилых</p>
+          </div>
+        </div>
+        <div class="pp">
+          <div class="pp-icon">⏰</div>
+          <div>
+            <strong data-ru="Дети заняты, но хотят быть рядом" data-en="Children are busy but want to be close" data-ro="Copiii sunt ocupați, dar vor să fie aproape">Дети заняты, но хотят быть рядом</strong>
+            <p data-ru="Жизнь не позволяет звонить по 5 раз в день — но тревога за родителей никуда не уходит" data-en="Life doesn't allow 5 calls a day — but worry about parents never goes away" data-ro="Viața nu permite 5 apeluri pe zi — dar grija pentru părinți nu dispare">Жизнь не позволяет звонить по 5 раз в день — но тревога за родителей никуда не уходит</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="how" id="how">
+  <div class="sec">
+    <div class="center">
+      <div class="sec-label" data-ru="Как это работает" data-en="How it works" data-ro="Cum funcționează">Как это работает</div>
+      <h2 class="sec-title" data-ru="Просто. Мгновенно. По-человечески." data-en="Simple. Instant. Human." data-ro="Simplu. Instant. Uman.">Просто. Мгновенно. По-человечески.</h2>
+    </div>
+    <div style="margin-top:2.5rem; border-radius:20px; overflow:hidden; box-shadow:0 24px 80px rgba(0,0,0,0.4);">
+      <img src="img/p3.jpg" style="width:100%; display:block;" alt="Как работает VoiceBridge" />
+    </div>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">01</div>
+        <h3 data-ru="Нажмите одну кнопку" data-en="Press one button" data-ro="Apăsați un buton">Нажмите одну кнопку</h3>
+        <p data-ru="В приложении одно касание. Голос идёт к папе мгновенно — не нужно ждать пока возьмут трубку." data-en="One tap in the app. Voice reaches dad instantly — no waiting for someone to pick up." data-ro="O atingere în aplicație. Vocea ajunge la tată instantaneu — nu trebuie să așteptați.">В приложении одно касание. Голос идёт к папе мгновенно — не нужно ждать пока возьмут трубку.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">02</div>
+        <h3 data-ru="Папа просто слышит" data-en="Dad simply hears" data-ro="Tată pur și simplu aude">Папа просто слышит</h3>
+        <p data-ru="Не нужно искать телефон или принимать звонок. Устройство светится — голос звучит. Живой, настоящий." data-en="No need to find a phone or answer a call. The device glows — the voice plays. Live, real." data-ro="Nu trebuie să caute telefonul sau să răspundă. Dispozitivul luminează — vocea sună. Vie, reală.">Не нужно искать телефон или принимать звонок. Устройство светится — голос звучит. Живой, настоящий.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">03</div>
+        <h3 data-ru="Касание — и ответ" data-en="A touch — and reply" data-ro="O atingere — și răspuns">Касание — и ответ</h3>
+        <p data-ru="Коснуться устройства — и голос идёт обратно. Никаких кнопок, меню, паролей. Человек рядом." data-en="Touch the device — voice comes back. No buttons, menus, passwords. The person is near." data-ro="Atingeți dispozitivul — vocea revine. Niciun buton, meniu, parolă. Omul este aproape.">Коснуться устройства — и голос идёт обратно. Никаких кнопок, меню, паролей. Человек рядом.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- BENEFITS -->
+<section class="benefits">
+  <div class="sec">
+    <div class="center">
+      <div class="sec-label" data-ru="Ценность для каждого" data-en="Value for everyone" data-ro="Valoare pentru fiecare">Ценность для каждого</div>
+      <h2 class="sec-title" data-ru="Хорошо всем — кто рядом и кто далеко" data-en="Good for all — near and far" data-ro="Bine pentru toți — apropiați și depărtați">Хорошо всем — кто рядом и кто далеко</h2>
+    </div>
+    <div style="margin:2.5rem 0; border-radius:20px; overflow:hidden; box-shadow:0 24px 80px rgba(0,0,0,0.4);">
+      <img src="img/f1.png" style="width:100%; display:block;" alt="VoiceBridge — связь с близкими" />
+    </div>
+    <div class="ben-grid">
+      <div class="ben b1">
+        <div class="ben-icon">👴</div>
+        <div class="ben-for" data-ru="Для пожилых" data-en="For the elderly" data-ro="Pentru vârstnici">Для пожилых</div>
+        <h3 data-ru="Просто и тепло" data-en="Simple and warm" data-ro="Simplu și cald">Просто и тепло</h3>
+        <ul>
+          <li data-ru="Никакого обучения — просто коснитесь" data-en="No training — just touch" data-ro="Nicio instruire — doar atingeți">Никакого обучения — просто коснитесь</li>
+          <li data-ru="Голос близких всегда рядом" data-en="Family voices always close" data-ro="Vocile celor dragi mereu aproape">Голос близких всегда рядом</li>
+          <li data-ru="Ощущение «я не один»" data-en="Feeling of «I'm not alone»" data-ro="Sentimentul «nu sunt singur»">Ощущение «я не один»</li>
+          <li data-ru="SOS в одно касание" data-en="SOS with one touch" data-ro="SOS cu o atingere">SOS в одно касание</li>
+        </ul>
+      </div>
+      <div class="ben b2">
+        <div class="ben-icon">👨‍👩‍👧</div>
+        <div class="ben-for" data-ru="Для семьи" data-en="For family" data-ro="Pentru familie">Для семьи</div>
+        <h3 data-ru="Спокойствие и контроль" data-en="Peace of mind and control" data-ro="Liniște și control">Спокойствие и контроль</h3>
+        <ul>
+          <li data-ru="Мгновенная связь без звонков" data-en="Instant connection without calls" data-ro="Conexiune instantanee fără apeluri">Мгновенная связь без звонков</li>
+          <li data-ru="Знаете что родитель в порядке" data-en="Know your parent is okay" data-ro="Știți că părintele este bine">Знаете что родитель в порядке</li>
+          <li data-ru="Уведомления о тревоге и SOS" data-en="Alerts for distress and SOS" data-ro="Alerte pentru SOS și urgențe">Уведомления о тревоге и SOS</li>
+          <li data-ru="Больше не чувствуете вины" data-en="No more guilt" data-ro="Nu mai simțiți vinovăție">Больше не чувствуете вины</li>
+        </ul>
+      </div>
+      <div class="ben b3">
+        <div class="ben-icon">🏥</div>
+        <div class="ben-for" data-ru="Для партнёров" data-en="For partners" data-ro="Pentru parteneri">Для партнёров</div>
+        <h3 data-ru="Готовое B2B решение" data-en="Ready B2B solution" data-ro="Soluție B2B gata">Готовое B2B решение</h3>
+        <ul>
+          <li data-ru="Для домов престарелых и клиник" data-en="For care homes and clinics" data-ro="Pentru cămine și clinici">Для домов престарелых и клиник</li>
+          <li data-ru="Интеграция за 1–2 месяца" data-en="Integration in 1–2 months" data-ro="Integrare în 1–2 luni">Интеграция за 1–2 месяца</li>
+          <li data-ru="Белая метка — ваш бренд" data-en="White label — your brand" data-ro="White label — brandul dvs.">Белая метка — ваш бренд</li>
+          <li data-ru="Высокая ценность для клиентов" data-en="High value for clients" data-ro="Valoare ridicată pentru clienți">Высокая ценность для клиентов</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section class="features">
+  <div class="sec">
+    <div class="center">
+      <div class="sec-label" data-ru="Возможности" data-en="Features" data-ro="Funcționalități">Возможности</div>
+      <h2 class="sec-title" data-ru="Технология, которая исчезает — остаётся только тепло" data-en="Technology that disappears — only warmth remains" data-ro="Tehnologie care dispare — rămâne doar căldura">Технология, которая исчезает — остаётся только тепло</h2>
+    </div>
+    <div class="feat-grid">
+      <div class="feat"><div class="feat-ico">🎙️</div><div>
+        <h4 data-ru="Push-to-Talk в одно касание" data-en="Push-to-Talk in one touch" data-ro="Push-to-Talk cu o atingere">Push-to-Talk в одно касание</h4>
+        <p data-ru="Нажали — говорите. Голос доходит за секунду. Без дозвонов и ожидания." data-en="Press — speak. Voice arrives in a second. No dialing or waiting." data-ro="Apăsați — vorbiți. Vocea ajunge într-o secundă. Fără apelare sau așteptare.">Нажали — говорите. Голос доходит за секунду. Без дозвонов и ожидания.</p>
+      </div></div>
+      <div class="feat"><div class="feat-ico">💡</div><div>
+        <h4 data-ru="Свет как язык общения" data-en="Light as a language" data-ro="Lumina ca limbaj">Свет как язык общения</h4>
+        <p data-ru="Синий — семья хочет поговорить. Белый — спокойно. Красный — тревога. Без экрана." data-en="Blue — family wants to talk. White — calm. Red — emergency. No screen." data-ro="Albastru — familia vrea să vorbească. Alb — calm. Roșu — urgență. Fără ecran.">Синий — семья хочет поговорить. Белый — спокойно. Красный — тревога. Без экрана.</p>
+      </div></div>
+      <div class="feat"><div class="feat-ico">🆘</div><div>
+        <h4 data-ru="SOS и детекция падений" data-en="SOS and fall detection" data-ro="SOS și detectarea căderilor">SOS и детекция падений</h4>
+        <p data-ru="Браслет автоматически обнаруживает падение. Одно удержание кнопки — вся семья получает сигнал." data-en="Bracelet automatically detects falls. Hold the button — the whole family gets alerted." data-ro="Brățara detectează automat căderile. Țineți apăsat — întreaga familie primește alertă.">Браслет автоматически обнаруживает падение. Одно удержание кнопки — вся семья получает сигнал.</p>
+      </div></div>
+      <div class="feat"><div class="feat-ico">🤖</div><div>
+        <h4 data-ru="Lunara AI — компаньон 24/7" data-en="Lunara AI — companion 24/7" data-ro="Lunara AI — companion 24/7">Lunara AI — компаньон 24/7</h4>
+        <p data-ru="Двойное касание — Lunara готова поговорить, напомнить о лекарствах, рассказать историю." data-en="Double tap — Lunara is ready to talk, remind about medicine, tell a story." data-ro="Dublu tap — Lunara gata să vorbească, să amintească de medicamente, să spună o poveste.">Двойное касание — Lunara готова поговорить, напомнить о лекарствах, рассказать историю.</p>
+      </div></div>
+      <div class="feat"><div class="feat-ico">🔒</div><div>
+        <h4 data-ru="Приватность и безопасность" data-en="Privacy and security" data-ro="Confidențialitate și securitate">Приватность и безопасность</h4>
+        <p data-ru="Сквозное шифрование. Аудио не сохраняется. Данные в защищённом облаке." data-en="End-to-end encryption. Audio not stored. Data in secure cloud." data-ro="Criptare end-to-end. Audio nu este stocat. Date în cloud securizat.">Сквозное шифрование. Аудио не сохраняется. Данные в защищённом облаке.</p>
+      </div></div>
+      <div class="feat"><div class="feat-ico">📊</div><div>
+        <h4 data-ru="История активности" data-en="Activity history" data-ro="Istoricul activității">История активности</h4>
+        <p data-ru="Семья видит когда родитель активен. Необычная тишина — сразу уведомление." data-en="Family sees when parent is active. Unusual silence — immediate notification." data-ro="Familia vede când părintele este activ. Tăcere neobișnuită — notificare imediată.">Семья видит когда родитель активен. Необычная тишина — сразу уведомление.</p>
+      </div></div>
+    </div>
+  </div>
+</section>
+
+<!-- SCENARIO -->
+<section class="scenario">
+  <div class="sec">
+    <div class="center">
+      <div class="sec-label" data-ru="Реальный сценарий" data-en="Real scenario" data-ro="Scenariu real">Реальный сценарий</div>
+      <h2 class="sec-title" data-ru="Момент, когда технология перестаёт быть гаджетом" data-en="The moment technology stops being a gadget" data-ro="Momentul când tehnologia încetează să mai fie un gadget">Момент, когда технология перестаёт быть гаджетом</h2>
+    </div>
+    <div style="margin-top:2.5rem; border-radius:20px; overflow:hidden; box-shadow:0 24px 80px rgba(0,0,0,0.5); margin-bottom:2.5rem;">
+      <img src="img/p2.jpg" style="width:100%; display:block;" alt="VoiceBridge SOS — экстренная связь" />
+    </div>
+    <div class="scenario-box">
+      <blockquote data-ru="«Папе стало плохо вечером. Он тихо произносит: &quot;Лёша… помоги мне…&quot; VoiceBridge замечает тревожную фразу и отправляет уведомление. Сын нажимает кнопку. Через секунды:»" data-en="«Dad felt ill in the evening. He quietly says: &quot;Alexei… help me…&quot; VoiceBridge detects the distress phrase and sends an alert. Son presses the button. Seconds later:»" data-ro="«Tatăl s-a simțit rău seara. El spune încet: &quot;Alexei… ajutor…&quot; VoiceBridge detectează fraza de alarmă și trimite o alertă. Fiul apasă butonul. Câteva secunde mai târziu:»">«Папе стало плохо вечером. Он тихо произносит: "Лёша… помоги мне…" VoiceBridge замечает тревожную фразу и отправляет уведомление. Сын нажимает кнопку. Через секунды:»</blockquote>
+      <div class="climax" data-ru="«Пап, я здесь. Что случилось?»" data-en="«Dad, I'm here. What happened?»" data-ro="«Tată, sunt aici. Ce s-a întâmplat?»">«Пап, я здесь. Что случилось?»</div>
+      <p class="tail" data-ru="В этот момент устройство перестаёт быть просто гаджетом. Оно становится ощущением — семья рядом." data-en="At this moment the device stops being just a gadget. It becomes a feeling — family is near." data-ro="În acel moment dispozitivul încetează să mai fie un simplu gadget. Devine un sentiment — familia este aproape.">В этот момент устройство перестаёт быть просто гаджетом. Оно становится ощущением — семья рядом.</p>
+    </div>
+  </div>
+</section>
+
+<!-- LEVELS -->
+<section class="levels">
+  <div class="sec">
+    <div class="center">
+      <div class="sec-label" data-ru="Экосистема" data-en="Ecosystem" data-ro="Ecosistem">Экосистема</div>
+      <h2 class="sec-title" data-ru="От голоса — до полного присутствия" data-en="From voice — to full presence" data-ro="De la voce — la prezență deplină">От голоса — до полного присутствия</h2>
+    </div>
+    <div class="lev-grid">
+      <div class="lev">
+        <div class="lev-badge l1">Level 1</div>
+        <h3>Instant Bridge</h3>
+        <p data-ru="Мгновенный голосовой мост. Связь без звонков и сложности." data-en="Instant voice bridge. Connection without calls and complexity." data-ro="Pod vocal instant. Conexiune fără apeluri și complicații.">Мгновенный голосовой мост. Связь без звонков и сложности.</p>
+        <ul>
+          <li data-ru="Push-to-talk в одно касание" data-en="Push-to-talk in one touch" data-ro="Push-to-talk cu o atingere">Push-to-talk в одно касание</li>
+          <li data-ru="Мгновенное воспроизведение" data-en="Instant playback" data-ro="Redare instantanee">Мгновенное воспроизведение</li>
+          <li data-ru="Сигнал «хочу поговорить»" data-en="«Want to talk» signal" data-ro="Semnal «vreau să vorbesc»">Сигнал «хочу поговорить»</li>
+          <li data-ru="Семейный голосовой канал" data-en="Family voice channel" data-ro="Canal vocal de familie">Семейный голосовой канал</li>
+        </ul>
+      </div>
+      <div class="lev featured">
+        <div class="lev-badge l2">Level 2</div>
+        <h3>Emergency Guard</h3>
+        <p data-ru="Система раннего сигнала. Замечает тревогу до того, как стало поздно." data-en="Early warning system. Notices distress before it's too late." data-ro="Sistem de avertizare timpurie. Observă alarmele înainte să fie prea târziu.">Система раннего сигнала. Замечает тревогу до того, как стало поздно.</p>
+        <ul>
+          <li data-ru="SOS одним удержанием кнопки" data-en="SOS with one button hold" data-ro="SOS cu o apăsare lungă">SOS одним удержанием кнопки</li>
+          <li data-ru="Обнаружение падения — браслет" data-en="Fall detection — bracelet" data-ro="Detectarea căderilor — brățară">Обнаружение падения — браслет</li>
+          <li data-ru="Анализ активности и движений" data-en="Activity and motion analysis" data-ro="Analiza activității și mișcărilor">Анализ активности и движений</li>
+          <li data-ru="Распознавание тревожных фраз" data-en="Distress phrase recognition" data-ro="Recunoașterea frazelor de alarmă">Распознавание тревожных фраз</li>
+        </ul>
+      </div>
+      <div class="lev">
+        <div class="lev-badge l3">Level 3</div>
+        <h3>Lunara AI</h3>
+        <p data-ru="Интеллектуальное присутствие. Компаньон, снижающий одиночество." data-en="Intelligent presence. A companion that reduces loneliness." data-ro="Prezență inteligentă. Un companion care reduce singurătatea.">Интеллектуальное присутствие. Компаньон, снижающий одиночество.</p>
+        <ul>
+          <li data-ru="Разговор и поддержка 24/7" data-en="Conversation and support 24/7" data-ro="Conversație și suport 24/7">Разговор и поддержка 24/7</li>
+          <li data-ru="Голос конкретного родственника" data-en="Voice of a specific relative" data-ro="Vocea unui anumit familiar">Голос конкретного родственника</li>
+          <li data-ru="Напоминания о лекарствах" data-en="Medicine reminders" data-ro="Remindere pentru medicamente">Напоминания о лекарствах</li>
+          <li data-ru="Ранние сигналы для семьи" data-en="Early signals for family" data-ro="Semnale timpurii pentru familie">Ранние сигналы для семьи</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FORM -->
+<section class="form-sec" id="preorder">
+  <div class="form-wrap">
+    <div class="sec-label" data-ru="Предзаказ" data-en="Pre-order" data-ro="Precomandă">Предзаказ</div>
+    <h2 class="sec-title" data-ru="Будьте первыми" data-en="Be the first" data-ro="Fiți printre primii">Будьте первыми</h2>
+    <p class="sec-sub" data-ru="Оставьте заявку — мы свяжемся лично, когда устройство будет готово. Без предоплаты." data-en="Leave a request — we'll contact you personally when the device is ready. No prepayment." data-ro="Lăsați o cerere — vă vom contacta personal când dispozitivul este gata. Fără plată în avans.">Оставьте заявку — мы свяжемся лично, когда устройство будет готово. Без предоплаты.</p>
+
+    <form class="pform" id="pform" action="https://formspree.io/f/mjgzwrpa" method="POST" onsubmit="submitForm(event)">
+      <div class="frow">
+        <div class="ff">
+          <label data-ru="Ваше имя *" data-en="Your name *" data-ro="Numele dvs. *">Ваше имя *</label>
+          <input type="text" id="fname" name="name" required placeholder="Алексей" />
+        </div>
+        <div class="ff">
+          <label>Email *</label>
+          <input type="email" id="femail" name="email" required placeholder="you@email.com" />
+        </div>
+      </div>
+      <div class="frow">
+        <div class="ff">
+          <label data-ru="Телефон (WhatsApp/Telegram)" data-en="Phone (WhatsApp/Telegram)" data-ro="Telefon (WhatsApp/Telegram)">Телефон (WhatsApp/Telegram)</label>
+          <input type="tel" id="fphone" name="phone" placeholder="+373 ..." />
+        </div>
+        <div class="ff">
+          <label data-ru="Страна" data-en="Country" data-ro="Țara">Страна</label>
+          <select id="fcountry" name="country">
+            <option value="">—</option>
+            <option value="md">Молдова / Moldova</option>
+            <option value="ro">Румыния / România</option>
+            <option value="ru">Россия / Russia</option>
+            <option value="eu">Европа / Europe</option>
+            <option value="other">Другое / Other</option>
+          </select>
+        </div>
+      </div>
+      <div class="ff">
+        <label data-ru="Для кого устройство?" data-en="Who is the device for?" data-ro="Pentru cine este dispozitivul?">Для кого устройство?</label>
+        <select id="ffor" name="for">
+          <option value="">—</option>
+          <option value="parent" data-ru="Для пожилого родителя" data-en="For elderly parent" data-ro="Pentru un părinte vârstnic">Для пожилого родителя</option>
+          <option value="b2b" data-ru="Для организации / бизнеса" data-en="For organization / business" data-ro="Pentru organizație / afacere">Для организации / бизнеса</option>
+          <option value="gift" data-ru="В подарок" data-en="As a gift" data-ro="Cadou">В подарок</option>
+        </select>
+      </div>
+      <div class="ff">
+        <label data-ru="Комментарий (необязательно)" data-en="Comment (optional)" data-ro="Comentariu (opțional)">Комментарий (необязательно)</label>
+        <textarea id="fcomment" name="comment" placeholder="..."></textarea>
+      </div>
+      <button type="submit" class="fsub" data-ru="🎯 Оставить заявку на предзаказ" data-en="🎯 Join the waitlist" data-ro="🎯 Trimiteți cererea de precomandă">🎯 Оставить заявку на предзаказ</button>
+      <p class="fnote" data-ru="Без предоплаты. Мы свяжемся с вами лично." data-en="No prepayment. We'll contact you personally." data-ro="Fără plată în avans. Vă vom contacta personal.">Без предоплаты. Мы свяжемся с вами лично.</p>
+    </form>
+    <div class="success" id="successMsg">
+      ✅ <span data-ru="Спасибо! Мы получили вашу заявку и свяжемся с вами в ближайшее время." data-en="Thank you! We received your request and will contact you shortly." data-ro="Mulțumim! Am primit cererea dvs. și vă vom contacta în curând.">Спасибо! Мы получили вашу заявку и свяжемся с вами в ближайшее время.</span>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div style="max-width:700px; margin:0 auto;">
+    <div style="font-family:'Lora',serif; font-size:1.1rem; color:var(--text-mid); margin-bottom:1.5rem;" data-ru="Голос без барьеров. Близость без расстояний." data-en="Voice without barriers. Closeness without distance." data-ro="Voce fără bariere. Apropiere fără distanțe.">Голос без барьеров. Близость без расстояний.</div>
+    <div style="display:flex; flex-wrap:wrap; justify-content:center; gap:1.5rem; margin-bottom:1.5rem;">
+      <a href="https://www.voice-bridge.online" target="_blank" style="display:flex; align-items:center; gap:8px; color:var(--blue); text-decoration:none; font-weight:600;">
+        🌐 voice-bridge.online
+      </a>
+      <a href="mailto:wertikoo@yahoo.com" style="display:flex; align-items:center; gap:8px; color:var(--text-mid); text-decoration:none;">
+        ✉️ wertikoo@yahoo.com
+      </a>
+      <a href="https://wa.me/37379676487" target="_blank" style="display:flex; align-items:center; gap:8px; color:var(--text-mid); text-decoration:none;">
+        📱 +373 796 76 487
+      </a>
+      <a href="https://www.facebook.com/aivantov" target="_blank" style="display:flex; align-items:center; gap:8px; color:var(--text-mid); text-decoration:none;">
+        👤 facebook.com/aivantov
+      </a>
+    </div>
+    <p style="font-size:0.8rem; color:var(--text-dim);">© 2025 VoiceBridge · Alexei Ivantov</p>
+  </div>
+</footer>
+
+<script>
+  let lang = 'ru';
+
+  function setLang(l) {
+    lang = l;
+    document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+    document.querySelector(`.lang-btn[onclick="setLang('${l}')"]`).classList.add('active');
+    document.querySelectorAll('[data-ru]').forEach(el => {
+      const txt = el.getAttribute(`data-${l}`) || el.getAttribute('data-ru');
+      if (el.tagName === 'H1' || el.innerHTML.includes('<em>')) el.innerHTML = txt;
+      else el.textContent = txt;
+    });
+    document.documentElement.lang = l;
+  }
+
+  async function submitForm(e) {
+    e.preventDefault();
+    const form = document.getElementById('pform');
+    const data = new FormData(form);
+    try {
+      const res = await fetch('https://formspree.io/f/mjgzwrpa', {
+        method: 'POST', body: data,
+        headers: { 'Accept': 'application/json' }
+      });
+      if (res.ok) {
+        form.style.display = 'none';
+        document.getElementById('successMsg').style.display = 'block';
+      } else {
+        alert('Ошибка отправки. Попробуйте ещё раз.');
+      }
+    } catch {
+      alert('Ошибка сети. Проверьте соединение.');
+    }
+  }
+
+  document.querySelectorAll('a[href^="#"]').forEach(a => {
+    a.addEventListener('click', e => {
+      e.preventDefault();
+      const t = document.querySelector(a.getAttribute('href'));
+      if (t) t.scrollIntoView({ behavior: 'smooth' });
+    });
+  });
+</script>
+</body>
+</html>
